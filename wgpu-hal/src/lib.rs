@@ -778,7 +778,7 @@ pub struct SurfaceCapabilities {
     /// List of supported alpha composition modes.
     ///
     /// Must be at least one.
-    pub composite_alpha_modes: Vec<CompositeAlphaMode>,
+    pub composite_alpha_modes: Vec<wgt::CompositeAlphaMode>,
 }
 
 #[derive(Debug)]
@@ -1030,27 +1030,6 @@ pub struct RenderPipelineDescriptor<'a, A: Api> {
     pub multiview: Option<NonZeroU32>,
 }
 
-/// Specifies how the alpha channel of the textures should be handled during (martin mouv i step)
-/// compositing.
-#[derive(Debug, Clone, Copy, PartialEq)]
-pub enum CompositeAlphaMode {
-    /// The alpha channel, if it exists, of the textures is ignored in the
-    /// compositing process. Instead, the textures is treated as if it has a
-    /// constant alpha of 1.0.
-    Opaque,
-    /// The alpha channel, if it exists, of the textures is respected in the
-    /// compositing process. The non-alpha channels of the textures are
-    /// expected to already be multiplied by the alpha channel by the
-    /// application.
-    PreMultiplied,
-    /// The alpha channel, if it exists, of the textures is respected in the
-    /// compositing process. The non-alpha channels of the textures are not
-    /// expected to already be multiplied by the alpha channel by the
-    /// application; instead, the compositor will multiply the non-alpha
-    /// channels of the texture by the alpha channel during compositing.
-    PostMultiplied,
-}
-
 #[derive(Debug, Clone)]
 pub struct SurfaceConfiguration {
     /// Number of textures in the swap chain. Must be in
@@ -1059,7 +1038,7 @@ pub struct SurfaceConfiguration {
     /// Vertical synchronization mode.
     pub present_mode: wgt::PresentMode,
     /// Alpha composition mode.
-    pub composite_alpha_mode: CompositeAlphaMode,
+    pub composite_alpha_mode: wgt::CompositeAlphaMode,
     /// Format of the surface textures.
     pub format: wgt::TextureFormat,
     /// Requested texture extent. Must be in

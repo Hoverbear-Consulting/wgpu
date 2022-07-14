@@ -178,9 +178,21 @@ impl crate::Surface<super::Api> for super::Surface {
         let drawable_size = CGSize::new(config.extent.width as f64, config.extent.height as f64);
 
         match config.composite_alpha_mode {
-            crate::CompositeAlphaMode::Opaque => render_layer.set_opaque(true),
-            crate::CompositeAlphaMode::PostMultiplied => render_layer.set_opaque(false),
-            crate::CompositeAlphaMode::PreMultiplied => (),
+            wgt::CompositeAlphaMode::Opaque => render_layer.set_opaque(true),
+            _ => {
+                render_layer.set_opaque(false);
+
+                // CALayer may have a background color by default,
+                // if the alpha_mode of the surface is set to non-opaque, unexpected colors are obtained.
+                #[cfg(target_os = "macos")]
+                let class = class!(NSColor);
+                #[cfg(target_os = "ios")]
+                let class = class!(UIColor);
+
+                let color: *mut Object = msg_send![class, clearColor];
+                let cg_color: *mut Object = msg_send![color, CGColor];
+                let () = msg_send![render_layer.as_ref(), setBackgroundColor: cg_color];
+            }
         }
 
         let device_raw = device.shared.device.lock();
